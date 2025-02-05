@@ -1,0 +1,5 @@
+import './ActivityMutation'
+import './ArticleMutation'
+import './AuthenticationMutation'
+import './MediaMutation'
+import './UserMutation'

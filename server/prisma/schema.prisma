@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserRefreshToken {
+  id          String   @id @unique @default(uuid())
+  hashedToken String
+  userId      Int
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            Int                @id @default(autoincrement())
+  email         String             @unique
+  username      String             @unique
+  name          String
+  password      String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  articles      Article[]
+  refreshTokens UserRefreshToken[]
+}
+
+model Article {
+  id               Int        @id @default(autoincrement())
+  title            String
+  slug             String     @unique
+  shortDescription String
+  authorId         Int
+  author           User       @relation(fields: [authorId], references: [id])
+  content          String
+  thumbnail        String
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  activities       Activity[]
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  action    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ActivityTypeEnum {
+  VIEW_ARTICLE
+  LIKE_ARTICLE
+  SHARE_ARTICLE
+}
